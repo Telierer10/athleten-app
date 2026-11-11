@@ -68,7 +68,7 @@ function zeigeHeute(inhalt) {
   inhalt.innerHTML = `
     <header class="kopf">
       <p class="datum">${langesDatum(new Date())}</p>
-      <h1>${gruss}, ${sicher(name)}.</h1>
+      <h1>${gruss}, <span class="verlauf-text">${sicher(name)}.</span></h1>
     </header>
 
     ${naechsterHtml}
