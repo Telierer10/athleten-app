@@ -45,6 +45,7 @@ body {
   /* Hintergrund mit sanftem lila Leuchten oben – bleibt beim Scrollen stehen */
   background:
     radial-gradient(ellipse 80% 50% at 50% -10%, var(--leuchten), transparent 70%) fixed,
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(255, 95, 162, 0.18), transparent 70%) fixed,
     var(--hintergrund);
   min-height: 100vh;
   color: var(--text);
@@ -102,17 +103,36 @@ h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.
   padding: 18px;
   border: 1px solid var(--linie);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+/* Maus über einer Karte: lila Rand + Leuchten (nur mit Maus, nicht auf dem Handy) */
+@media (hover: hover) {
+  .karte:hover {
+    border-color: var(--akzent);
+    box-shadow: 0 0 0 1px var(--leuchten), 0 12px 36px -12px var(--leuchten);
+  }
 }
 .leer { color: var(--text-leise); padding: 4px 0; }
 
 /* "Als Nächstes"-Karte: farbig */
 .highlight {
   /* Verlauf von der Termin-Farbe zu Lila + farbiges Leuchten darunter */
-  background: linear-gradient(135deg, var(--farbe), #6c47ff);
+  background: linear-gradient(135deg, var(--farbe), #6c47ff, #ff5fa2, var(--farbe));
+  background-size: 300% 300%;
+  animation: verlauf-wandern 12s ease infinite;   /* Farben fließen langsam */
   color: #fff;
   padding: 22px;
   border: none;
-  box-shadow: 0 14px 40px -12px var(--farbe);
+  box-shadow: 0 14px 40px -12px var(--farbe), 0 0 60px -20px #a64dff;
+}
+@keyframes verlauf-wandern {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+/* Wer in den Einstellungen "Bewegung reduzieren" an hat, bekommt keine Animation */
+@media (prefers-reduced-motion: reduce) {
+  .highlight { animation: none; }
 }
 .highlight-label { font-size: 13px; font-weight: 600; text-transform: uppercase; opacity: 0.85; }
 .highlight-titel { font-size: 26px; font-weight: 700; margin: 4px 0; }
@@ -177,7 +197,11 @@ h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
-.erledigt .haken { background: var(--akzent); border-color: var(--akzent); }
+.erledigt .haken {
+  background: var(--verlauf);
+  border-color: transparent;
+  box-shadow: 0 0 12px var(--leuchten);   /* abgehakt = leuchtet */
+}
 
 .loeschen {
   border: none;
@@ -205,7 +229,10 @@ input, select {
   width: 100%;
   min-width: 0;
 }
-input:focus, select:focus { outline: 2px solid var(--akzent); }
+input:focus, select:focus {
+  outline: 2px solid var(--akzent);
+  box-shadow: 0 0 16px var(--leuchten);   /* Eingabefeld leuchtet beim Tippen */
+}
 
 .feld-label {
   display: flex;
