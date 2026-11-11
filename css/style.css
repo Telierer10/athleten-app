@@ -1,0 +1,293 @@
+/* =====================================================================
+   style.css – das ganze Design der App, im Stil von iOS-Apps.
+   Farben stehen oben an EINER Stelle. Ändere sie dort.
+   ===================================================================== */
+
+:root {
+  --hintergrund: #f2f2f7;     /* das typische iOS-Hellgrau */
+  --karte: #ffffff;
+  --feld: #f2f2f7;
+  --text: #1d1d1f;
+  --text-leise: #6e6e73;
+  --linie: rgba(60, 60, 67, 0.15);
+  --akzent: #0071e3;
+
+  /* Farben für die Termin-Arten (siehe ARTEN in plan.js) */
+  --blau: #0a84ff;
+  --orange: #ff9f0a;
+  --gruen: #30d158;
+  --rot: #ff453a;
+  --grau: #8e8e93;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hintergrund: #000000;
+    --karte: #1c1c1e;
+    --feld: #2c2c2e;
+    --text: #f5f5f7;
+    --text-leise: #a1a1a6;
+    --linie: rgba(84, 84, 88, 0.6);
+    --akzent: #2997ff;
+  }
+}
+
+/* ---------- Grundlagen ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--hintergrund);
+  color: var(--text);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;  /* kein grauer Blitz beim Antippen auf dem iPhone */
+}
+
+/* Der Inhaltsbereich: in der Mitte, nicht zu breit (gut auf iPad & Laptop) */
+.inhalt {
+  max-width: 680px;
+  margin: 0 auto;
+  /* unten Platz für die Tab-Leiste + den iPhone-Balken (safe-area) */
+  padding: 16px 16px calc(100px + env(safe-area-inset-bottom));
+  padding-top: calc(16px + env(safe-area-inset-top));
+}
+
+/* ---------- Kopfbereich mit großer Überschrift ---------- */
+.kopf { margin: 24px 4px 20px; }
+h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.datum, .unterzeile { color: var(--text-leise); font-size: 15px; font-weight: 600; text-transform: none; }
+.datum { text-transform: uppercase; font-size: 13px; letter-spacing: 0.02em; margin-bottom: 4px; }
+.unterzeile { font-weight: 400; margin-top: 4px; }
+
+/* Kleine Überschriften über den Karten */
+.gruppe {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 28px 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.anzahl {
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--linie);
+  color: var(--text-leise);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+
+/* ---------- Karten ---------- */
+.karte {
+  background: var(--karte);
+  border-radius: 16px;
+  padding: 16px;
+}
+.leer { color: var(--text-leise); padding: 4px 0; }
+
+/* "Als Nächstes"-Karte: farbig */
+.highlight {
+  background: var(--farbe);
+  color: #fff;
+  padding: 20px;
+}
+.highlight-label { font-size: 13px; font-weight: 600; text-transform: uppercase; opacity: 0.85; }
+.highlight-titel { font-size: 26px; font-weight: 700; margin: 4px 0; }
+.highlight-info { font-size: 16px; opacity: 0.9; }
+
+/* ---------- Zeitleiste (Termine) ---------- */
+.zeitleiste { list-style: none; }
+.termin {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 10px 12px;
+  border-left: 4px solid var(--farbe);   /* farbiger Streifen links */
+  margin: 6px 0;
+}
+.termin-zeit { color: var(--text-leise); font-size: 14px; font-variant-numeric: tabular-nums; min-width: 92px; }
+.termin-titel { font-weight: 600; flex: 1; }
+.termin.vorbei { opacity: 0.4; }
+.termin.jetzt { background: color-mix(in srgb, var(--farbe) 12%, transparent); border-radius: 0 10px 10px 0; }
+.jetzt-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--farbe);
+  border-radius: 8px;
+  padding: 2px 8px;
+  margin-right: 8px;
+}
+
+/* ---------- Listen (Aufgaben, Plan) ---------- */
+.liste { list-style: none; padding-top: 4px; padding-bottom: 4px; }
+.zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linie);
+}
+.zeile:last-child { border-bottom: none; }
+.zeile-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.zeile-zeit { color: var(--text-leise); font-size: 14px; font-variant-numeric: tabular-nums; }
+.punkt { width: 10px; height: 10px; border-radius: 50%; background: var(--farbe); flex-shrink: 0; }
+
+/* Aufgaben */
+.aufgabe-text { color: var(--text-leise); font-size: 15px; overflow-wrap: anywhere; }
+.faellig { font-size: 13px; color: var(--text-leise); white-space: nowrap; }
+.faellig.bald { color: var(--orange); font-weight: 600; }
+.faellig.ueberfaellig { color: var(--rot); font-weight: 600; }
+.aufgabe.erledigt .zeile-text { opacity: 0.5; text-decoration: line-through; }
+
+/* Runder Haken-Knopf wie in der iOS-Erinnerungen-App */
+.haken {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--grau);
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.erledigt .haken { background: var(--akzent); border-color: var(--akzent); }
+
+.loeschen {
+  border: none;
+  background: none;
+  color: var(--text-leise);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 6px;
+  opacity: 0.5;
+}
+.loeschen:hover { opacity: 1; color: var(--rot); }
+
+/* ---------- Formulare ---------- */
+.formular { display: flex; flex-direction: column; gap: 10px; }
+.zwei-spalten { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+input, select {
+  font: inherit;
+  font-size: 16px;            /* mind. 16px, sonst zoomt das iPhone beim Antippen rein */
+  color: var(--text);
+  background: var(--feld);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  width: 100%;
+  min-width: 0;
+}
+input:focus, select:focus { outline: 2px solid var(--akzent); }
+
+.feld-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-leise);
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* ---------- Knöpfe ---------- */
+.knopf {
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  background: var(--akzent);
+  color: #fff;
+  border: 2px solid var(--akzent);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.knopf:hover { background: #fff; color: var(--akzent); }   /* wie auf deiner Website */
+.knopf-leise {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  background: transparent;
+  color: var(--rot);
+  border-color: transparent;
+  font-weight: 400;
+}
+.knopf-leise:hover { background: var(--karte); color: var(--rot); }
+
+.link-knopf {
+  font: inherit;
+  border: none;
+  background: none;
+  color: var(--akzent);
+  cursor: pointer;
+  margin-top: 8px;
+  padding: 4px 0;
+}
+
+/* Aufklappbarer Bereich "Erledigt" */
+.erledigt-bereich summary { cursor: pointer; list-style: none; }
+.erledigt-bereich summary::-webkit-details-marker { display: none; }
+.erledigt-bereich summary::before { content: "›"; display: inline-block; transition: transform 0.2s; }
+.erledigt-bereich[open] summary::before { transform: rotate(90deg); }
+
+/* Platzhalter "Kommt bald" */
+.bald { text-align: center; padding: 48px 16px; color: var(--text-leise); }
+.bald-icon { font-size: 56px; margin-bottom: 8px; }
+
+/* ---------- Tab-Leiste unten (Milchglas) ---------- */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--karte) 80%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid var(--linie);
+}
+.tab {
+  position: relative;
+  flex: 1;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font: inherit;
+  font-size: 11px;
+  color: var(--text-leise);
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.tab-icon { font-size: 22px; filter: grayscale(1); opacity: 0.6; transition: 0.2s; }
+.tab.aktiv { color: var(--akzent); font-weight: 600; }
+.tab.aktiv .tab-icon { filter: none; opacity: 1; }
+
+/* Rotes Zahlen-Badge (wie bei iPhone-App-Icons) */
+.badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--rot);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.badge[hidden] { display: none; }
