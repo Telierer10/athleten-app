@@ -59,6 +59,23 @@ function faelligText(text) {
   return `${WOCHENTAGE_KURZ[datum.getDay()]}, ${datum.getDate()}.${datum.getMonth() + 1}.`;
 }
 
+// "2026-11-11"  ->  "Mi, 11.11."
+function kurzesDatum(text) {
+  const datum = textAlsDatum(text);
+  return `${WOCHENTAGE_KURZ[datum.getDay()]}, ${datum.getDate()}.${datum.getMonth() + 1}.`;
+}
+
+// Montag der aktuellen Woche als Text
+function montagDieserWoche() {
+  const tageSeitMontag = (new Date().getDay() + 6) % 7; // Mo=0, Di=1, ... So=6
+  return plusTage(heuteText(), -tageSeitMontag);
+}
+
+// 4.25  ->  "4,3" (deutsches Komma)
+function zahlText(zahl, nachkomma = 1) {
+  return zahl.toLocaleString("de-DE", { maximumFractionDigits: nachkomma });
+}
+
 // "18:30"  ->  1110 (Minuten seit Mitternacht). Damit kann man Uhrzeiten vergleichen.
 function zeitAlsMinuten(zeit) {
   const [stunden, minuten] = zeit.split(":").map(Number);

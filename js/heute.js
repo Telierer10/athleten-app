@@ -50,6 +50,17 @@ function zeigeHeute(inhalt) {
       </div>`;
   }
 
+  // --- Erinnerung: Training/Spiel ist vorbei, aber noch nicht eingetragen ---
+  const sportVorbei = termine.some((t) =>
+    ["training", "spiel", "physio"].includes(t.art) &&
+    minuten >= (t.bis ? zeitAlsMinuten(t.bis) : zeitAlsMinuten(t.von) + 60));
+  const schonEingetragen = ladeEinheiten().some((e) => e.datum === heute);
+  const erinnerungHtml = sportVorbei && !schonEingetragen ? `
+    <button class="karte erinnerung" data-gehe="training">
+      <span class="erinnerung-icon">🤾</span>
+      <span><strong>Wie lief's heute?</strong><br><span class="aufgabe-text">Trag dein Training ein →</span></span>
+    </button>` : "";
+
   // --- Zeitleiste für heute ---
   const heuteListe = termine.length === 0
     ? `<p class="leer">Heute steht nichts im Plan. Genieß den freien Tag! 🌲</p>`
@@ -72,6 +83,7 @@ function zeigeHeute(inhalt) {
     </header>
 
     ${naechsterHtml}
+    ${erinnerungHtml}
 
     <h3 class="gruppe">Dein Tag</h3>
     <div class="karte">${heuteListe}</div>

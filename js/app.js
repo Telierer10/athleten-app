@@ -21,7 +21,7 @@ function zeigeBald(titel, icon, wann) {
 const ANSICHTEN = {
   heute: zeigeHeute,
   aufgaben: zeigeAufgaben,
-  training: zeigeBald("Training & Spiele", "🤾", "am Donnerstag"),
+  training: zeigeTraining,
   schlaf: zeigeBald("Schlaf", "😴", "am Donnerstag"),
   plan: zeigePlan,
 };

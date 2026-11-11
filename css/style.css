@@ -313,6 +313,114 @@ input:focus, select:focus {
 .erledigt-bereich summary::before { content: "›"; display: inline-block; transition: transform 0.2s; }
 .erledigt-bereich[open] summary::before { transform: rotate(90deg); }
 
+/* ---------- Training & Spiele ---------- */
+
+/* Statistik-Kacheln: 2 nebeneinander auf dem Handy, 4 auf größeren Bildschirmen */
+.kacheln { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 560px) { .kacheln { grid-template-columns: repeat(4, 1fr); } }
+.kachel { padding: 14px 16px; }
+.kachel-titel { font-size: 13px; font-weight: 600; color: var(--text-leise); }
+.kachel-zahl { font-size: 32px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.kachel-info { font-size: 13px; color: var(--text-leise); }
+
+/* Segment-Auswahl (Training / Spiel / Athletik) wie bei iOS */
+.segment {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--feld);
+  border-radius: 12px;
+  padding: 3px;
+}
+.segment input, .skala input { position: absolute; opacity: 0; pointer-events: none; }  /* echte Radio-Knöpfe verstecken */
+.segment label {
+  text-align: center;
+  padding: 9px 4px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.segment input:checked + label {
+  background: var(--karte);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Spiel-Felder nur zeigen, wenn "Spiel" gewählt ist.
+   :has() fragt: "Enthält das Formular einen angehakten Spiel-Knopf?" */
+.nur-spiel { display: none; flex-direction: column; gap: 10px; }
+.formular:has(#art-spiel:checked) .nur-spiel { display: flex; }
+
+/* Skala mit 5 Emojis */
+.frage { font-weight: 600; margin-top: 4px; }
+.skala { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.skala label {
+  text-align: center;
+  font-size: 26px;
+  padding: 8px 0;
+  border-radius: 12px;
+  background: var(--feld);
+  cursor: pointer;
+  filter: grayscale(0.8);
+  opacity: 0.6;
+  transition: 0.2s;
+}
+.skala input:checked + label {
+  filter: none;
+  opacity: 1;
+  background: color-mix(in srgb, var(--akzent) 18%, var(--feld));
+  box-shadow: 0 0 0 2px var(--akzent), 0 0 16px var(--leuchten);
+  transform: scale(1.06);
+}
+.segment input:focus-visible + label,
+.skala input:focus-visible + label { outline: 2px solid var(--akzent); }
+
+textarea {
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--feld);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  resize: vertical;
+}
+textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--leuchten); }
+
+/* Verlauf-Liste */
+.einheit-icon { font-size: 24px; }
+.bewertung { font-size: 22px; }
+.notiz { font-size: 14px; color: var(--text-leise); font-style: italic; margin-top: 2px; overflow-wrap: anywhere; }
+
+/* Erinnerungs-Karte auf "Heute" */
+.erinnerung {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 12px;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.erinnerung-icon { font-size: 32px; }
+
+/* ---------- Diagramme ---------- */
+.diagramm { width: 100%; height: auto; display: block; overflow: visible; }
+.diagramm-titel { font-size: 13px; color: var(--text-leise); margin-bottom: 8px; }
+.diagramm .raster { stroke: var(--linie); stroke-width: 1; }
+.diagramm .grundlinie { stroke: var(--linie); stroke-width: 1; }
+.diagramm .achse { fill: var(--text-leise); font-size: 10px; }
+.diagramm .wert { fill: var(--text); font-size: 11px; font-weight: 700; }
+.diagramm .datenlinie { fill: none; stroke: var(--akzent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.diagramm .datenpunkt { fill: var(--akzent); stroke: var(--karte); stroke-width: 2; transition: r 0.15s; }
+.diagramm .balken { fill: var(--akzent); transition: opacity 0.15s; }
+.diagramm .trefferflaeche { fill: transparent; cursor: default; }   /* größere unsichtbare Fläche fürs Hovern */
+.diagramm .punkt-gruppe:hover .datenpunkt { r: 6; }
+.diagramm .balken-gruppe:hover .balken { opacity: 0.75; }
+
 /* Platzhalter "Kommt bald" */
 .bald { text-align: center; padding: 48px 16px; color: var(--text-leise); }
 .bald-icon { font-size: 56px; margin-bottom: 8px; }
