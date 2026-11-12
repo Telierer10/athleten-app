@@ -1,6 +1,6 @@
 // =====================================================================
-// koerper.js – der Tab "Körper": Wasser, Schlaf und Supplements auf einer Seite.
-// Die einzelnen Bereiche kommen aus wasser.js, schlaf.js und supplements.js.
+// koerper.js – der Tab "Körper": Wasser, Schlaf, Supplements und Schmerz-Check.
+// Die einzelnen Bereiche kommen aus wasser.js, schlaf.js, supplements.js und schmerz.js.
 // Die Ziele (Wasser/Schlaf) stellt man in den Einstellungen ein.
 // =====================================================================
 
@@ -16,9 +16,12 @@ function zeigeKoerper(inhalt) {
     ${schlafBereichHtml()}
 
     ${supplementsBereichHtml()}
+
+    <div id="schmerz-bereich">${schmerzKarteHtml()}</div>
   `;
 
   verbindeWasser(inhalt);
   verbindeSchlaf(inhalt);
   verbindeSupplements(inhalt);
+  verbindeSchmerz(inhalt);
 }

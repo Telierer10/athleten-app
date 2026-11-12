@@ -501,6 +501,50 @@ textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--le
 .tag-auswahl input:focus-visible + label { outline: 2px solid var(--akzent); }
 .segment label { font-size: 14px; }
 
+/* ---------- Schmerz-Check (Körper zum Antippen) ---------- */
+.segment-2 { grid-template-columns: 1fr 1fr; }
+.schmerz-karte { display: flex; flex-direction: column; gap: 12px; }
+.koerper {
+  display: block;
+  width: 100%;
+  max-width: 230px;
+  margin: 4px auto 0;
+  -webkit-tap-highlight-color: transparent;  /* kein grauer Kasten beim Antippen auf dem iPhone */
+}
+.koerperteil {
+  fill: var(--feld);
+  stroke: var(--linie);
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition: fill 0.2s, stroke 0.2s;
+}
+@media (hover: hover) { .koerperteil:hover { fill: color-mix(in srgb, var(--akzent) 25%, var(--feld)); } }
+.koerperteil.schmerzt { stroke: rgba(0, 0, 0, 0.15); }
+.koerperteil.gewaehlt {
+  stroke: var(--akzent);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 6px var(--leuchten));
+}
+.koerperteil.gewaehlt:not(.schmerzt) { fill: color-mix(in srgb, var(--akzent) 30%, var(--feld)); }
+.koerper-seite { fill: var(--text-leise); font-size: 13px; font-weight: 700; }
+.koerper-hinweis { text-align: center; }
+.schmerz-titel { display: flex; justify-content: space-between; align-items: center; font-size: 18px; }
+.schmerz-skala label { display: flex; flex-direction: column; gap: 2px; font-size: 20px; filter: none; opacity: 1; }
+.schmerz-skala label b { color: var(--stufe); }
+.schmerz-skala label small { font-size: 10px; color: var(--text-leise); font-weight: 600; }
+.schmerz-skala input:checked + label {
+  background: color-mix(in srgb, var(--stufe) 22%, var(--feld));
+  box-shadow: 0 0 0 2px var(--stufe), 0 0 14px color-mix(in srgb, var(--stufe) 50%, transparent);
+}
+.schmerz-punkt {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 800; color: #1d1d1f;
+  flex-shrink: 0;
+}
+.schmerz-verlauf .zeile-text span { color: var(--text-leise); font-size: 14px; }
+
 /* ---------- Fach-Chips (Aufgaben) – eine Reihe zum Seitwärts-Wischen ---------- */
 .fach-chips {
   display: flex;
