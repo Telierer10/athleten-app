@@ -93,6 +93,15 @@ function zeigeAufgaben(inhalt) {
 
   const fachVorschlaege = FAECHER.map((f) => `<option value="${f}">`).join("");
 
+  // Fach-Chips: Fächer, die du oft benutzt, kommen nach vorne.
+  // zaehler sieht z. B. so aus: { Mathe: 5, Deutsch: 2 }
+  const zaehler = {};
+  ladeAufgaben().forEach((a) => { zaehler[a.fach] = (zaehler[a.fach] || 0) + 1; });
+  const sortiert = [...FAECHER].sort((a, b) => (zaehler[b] || 0) - (zaehler[a] || 0));
+  const fachChips = sortiert
+    .map((f) => `<button type="button" class="fach-chip" data-fach="${f}">${f}</button>`)
+    .join("");
+
   inhalt.innerHTML = `
     <header class="kopf">
       <h1>Aufgaben</h1>
@@ -102,6 +111,7 @@ function zeigeAufgaben(inhalt) {
     <form class="karte formular" id="aufgabe-form">
       <input id="a-fach" list="faecher" placeholder="Fach" required maxlength="30">
       <datalist id="faecher">${fachVorschlaege}</datalist>
+      <div class="fach-chips">${fachChips}</div>
       <input id="a-text" placeholder="Was ist zu tun?" required maxlength="120">
       <label class="feld-label">Fällig am <input type="date" id="a-faellig" value="${plusTage(heuteText(), 1)}" required></label>
       <button class="knopf" type="submit">Hinzufügen</button>
@@ -119,6 +129,22 @@ function zeigeAufgaben(inhalt) {
         <button class="knopf knopf-leise" id="erledigte-loeschen">Erledigte löschen</button>
       </details>` : ""}
   `;
+
+  // Chip antippen = Fach ins Feld schreiben. Beim Tippen leuchtet der passende Chip.
+  const fachFeld = inhalt.querySelector("#a-fach");
+  const markiereChip = () => {
+    inhalt.querySelectorAll(".fach-chip").forEach((chip) => {
+      chip.classList.toggle("aktiv", chip.dataset.fach.toLowerCase() === fachFeld.value.trim().toLowerCase());
+    });
+  };
+  inhalt.querySelectorAll(".fach-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      fachFeld.value = chip.dataset.fach;
+      markiereChip();
+      inhalt.querySelector("#a-text").focus(); // gleich weiter zur Aufgabe
+    });
+  });
+  fachFeld.addEventListener("input", markiereChip);
 
   inhalt.querySelector("#aufgabe-form").addEventListener("submit", (e) => {
     e.preventDefault();

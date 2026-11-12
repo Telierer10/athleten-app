@@ -501,6 +501,32 @@ textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--le
 .tag-auswahl input:focus-visible + label { outline: 2px solid var(--akzent); }
 .segment label { font-size: 14px; }
 
+/* ---------- Fach-Chips (Aufgaben) – eine Reihe zum Seitwärts-Wischen ---------- */
+.fach-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;              /* zu viele Chips? Dann seitwärts wischen */
+  scrollbar-width: none;         /* Scrollbalken verstecken (Firefox) */
+  margin: -4px -18px 0;          /* bis an den Kartenrand … */
+  padding: 0 18px 2px;           /* … aber Inhalt bleibt eingerückt */
+  -webkit-overflow-scrolling: touch;
+}
+.fach-chips::-webkit-scrollbar { display: none; } /* Scrollbalken verstecken (Chrome, Safari) */
+.fach-chip {
+  flex: none;                    /* Chips nicht zusammenquetschen */
+  border: none;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--feld);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.fach-chip.aktiv { background: var(--akzent); color: #fff; box-shadow: 0 0 12px var(--leuchten); }
+
 /* ---------- Wasser-Karte (klein) ---------- */
 .wasser-karte {
   position: relative;
