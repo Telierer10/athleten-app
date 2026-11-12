@@ -90,7 +90,10 @@ function zeigeHeute(inhalt) {
     : `<ul class="zeitleiste">${termineMorgen.map((t) => terminHtml(t, -1)).join("")}</ul>`;
 
   inhalt.innerHTML = `
-    <p class="wortmarke">self<span class="verlauf-text">ATHLETE</span></p>
+    <div class="kopfzeile">
+      <p class="wortmarke">self<span class="verlauf-text">ATHLETE</span></p>
+      <button class="zahnrad" data-gehe="einstellungen" aria-label="Einstellungen">⚙️</button>
+    </div>
     <header class="kopf">
       <p class="datum">${langesDatum(new Date())}</p>
       <h1>${gruss}, <span class="verlauf-text">${sicher(name)}.</span></h1>

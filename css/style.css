@@ -24,17 +24,19 @@
   --grau: #8e8e93;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --hintergrund: #0b0a14;     /* fast schwarz, mit einem Hauch Lila */
-    --karte: #17151f;
-    --feld: #24212e;
-    --text: #f5f5f7;
-    --text-leise: #a1a1b3;
-    --linie: rgba(255, 255, 255, 0.08);
-    --akzent: #8b6cff;
-    --leuchten: rgba(139, 108, 255, 0.45);
-  }
+/* Dunkelmodus. Ob er an ist, entscheidet JavaScript (app.js / index.html):
+   Einstellung "Automatisch" folgt dem Gerät, sonst deiner Wahl. */
+:root { color-scheme: light; }
+:root[data-theme="dunkel"] {
+  color-scheme: dark;         /* auch Datumsfelder & Co. werden dunkel */
+  --hintergrund: #0b0a14;     /* fast schwarz, mit einem Hauch Lila */
+  --karte: #17151f;
+  --feld: #24212e;
+  --text: #f5f5f7;
+  --text-leise: #a1a1b3;
+  --linie: rgba(255, 255, 255, 0.08);
+  --akzent: #8b6cff;
+  --leuchten: rgba(139, 108, 255, 0.45);
 }
 
 /* ---------- Grundlagen ---------- */
@@ -79,10 +81,8 @@ body::after {                /* pinke Wolke unten rechts */
   opacity: 0.14;
   animation-delay: -12s;     /* bewegt sich versetzt zur ersten */
 }
-@media (prefers-color-scheme: dark) {
-  body::before { opacity: 0.35; }
-  body::after  { opacity: 0.22; }
-}
+[data-theme="dunkel"] body::before { opacity: 0.35; }
+[data-theme="dunkel"] body::after  { opacity: 0.22; }
 @keyframes wolke-schweben {
   from { transform: translate(0, 0) scale(1); }
   to   { transform: translate(6vmax, 4vmax) scale(1.15); }
@@ -441,11 +441,65 @@ textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--le
 /* 🔥-Serie bei Supplements */
 .serie { font-size: 13px; font-weight: 600; color: var(--orange); white-space: nowrap; }
 
-/* "Ziele anpassen" aufklappbar */
-.ziele summary { cursor: pointer; list-style: none; }
-.ziele summary::-webkit-details-marker { display: none; }
-.ziele summary::before { content: "›"; display: inline-block; transition: transform 0.2s; }
-.ziele[open] summary::before { transform: rotate(90deg); }
+/* Kopfzeile auf "Heute": App-Name links, Zahnrad rechts */
+.kopfzeile { display: flex; justify-content: space-between; align-items: center; margin: 8px 4px -12px; }
+.kopfzeile .wortmarke { margin: 0; }
+.zahnrad {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  background: var(--glas);
+  border: 1px solid var(--glas-rand);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: transform 0.4s;
+}
+.zahnrad:hover { transform: rotate(60deg); }
+
+/* Einstellungen */
+.zurueck-knopf {
+  font: inherit;
+  font-size: 17px;
+  color: var(--akzent);
+  background: none;
+  border: none;
+  padding: 8px 4px 0;
+  cursor: pointer;
+}
+.hinweis { font-size: 14px; color: var(--text-leise); }
+.knopf-zweit {               /* zweiter Knopf: Glas statt Verlauf */
+  display: block;
+  text-align: center;
+  background: var(--feld);
+  color: var(--akzent);
+  border-color: transparent;
+  box-shadow: none;
+}
+.ueber { text-align: center; color: var(--text-leise); font-size: 13px; margin-top: 24px; line-height: 1.8; }
+.wortmarke-klein { font-size: 17px; font-weight: 500; color: var(--text); }
+.wortmarke-klein span { font-weight: 800; }
+
+/* Supplements: Häufigkeit */
+.nur-tage, .nur-woche { display: none; }
+.formular:has(#hf-tage:checked) .nur-tage { display: grid; }
+.formular:has(#hf-woche:checked) .nur-woche { display: flex; }
+.tag-auswahl { grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.tag-auswahl input { position: absolute; opacity: 0; pointer-events: none; }
+.tag-auswahl label {
+  text-align: center;
+  padding: 9px 0;
+  border-radius: 10px;
+  background: var(--feld);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.tag-auswahl input:checked + label { background: var(--akzent); color: #fff; box-shadow: 0 0 12px var(--leuchten); }
+.tag-auswahl input:focus-visible + label { outline: 2px solid var(--akzent); }
+.segment label { font-size: 14px; }
 
 /* ---------- Wasser-Karte (klein) ---------- */
 .wasser-karte {
@@ -504,12 +558,15 @@ textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--le
 @keyframes einblenden { from { opacity: 0; transform: scale(1.04); } }
 @keyframes ausblenden { to { opacity: 0; transform: scale(1.04); } }
 
-/* Das steigende Wasser */
+/* Die Leinwand der Wasser-Simulation füllt den ganzen Bildschirm.
+   Sie ist in niedriger Auflösung gerechnet – der Browser vergrößert sie weich. */
+.wv-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* Bereich unter der Wasseroberfläche: hält Wellen-Linie + Luftblasen.
+   Die Farbe malt die Simulation, darum hier kein Hintergrund. */
 .wv-wasser {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  background: linear-gradient(180deg, #4b55ff 0%, #2f22e0 40%, #1c13a8 100%);
-  transition: height 1.2s cubic-bezier(0.22, 1, 0.36, 1);   /* federt sanft aus */
 }
 /* Wellen oben auf dem Wasser: doppelt so breit und wandern nach links → endlose Bewegung */
 .wv-welle {
@@ -611,32 +668,8 @@ textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--le
   cursor: pointer;
 }
 
-/* Kreis-Wellen beim Drüberstreichen */
-.wasser-vollbild { touch-action: none; }   /* auf dem Handy: Finger-Bewegung NICHT als Scrollen verstehen */
-.wv-kreiswellen { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.kreiswelle {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  margin: -60px 0 0 -60px;              /* Mittelpunkt genau unter dem Finger */
-  border-radius: 50%;
-  border: 1.5px solid rgba(200, 212, 255, 0.55);
-  box-shadow: 0 0 14px rgba(143, 162, 255, 0.35), inset 0 0 14px rgba(143, 162, 255, 0.3);
-  animation: kreiswelle 1.2s ease-out forwards;
-}
-.kreiswelle.gross { width: 260px; height: 260px; margin: -130px 0 0 -130px; animation-duration: 1.6s; }
-/* Zweiter, innerer Ring – wie bei einem Tropfen, der ins Wasser fällt */
-.kreiswelle.gross::after {
-  content: "";
-  position: absolute;
-  inset: 25%;
-  border-radius: 50%;
-  border: 1.5px solid rgba(200, 212, 255, 0.45);
-}
-@keyframes kreiswelle {
-  from { transform: scale(0.1); opacity: 1; }
-  to   { transform: scale(1);   opacity: 0; }
-}
+/* Auf dem Handy: Finger-Bewegung NICHT als Scrollen/Zoomen verstehen */
+.wasser-vollbild { touch-action: none; -webkit-user-select: none; user-select: none; }
 .wv-knoepfe button {
   display: flex;
   flex-direction: column;
@@ -675,12 +708,10 @@ textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--le
   --glas-rand: rgba(255, 255, 255, 0.75);
   --glas-aktiv: rgba(255, 255, 255, 0.65);
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --glas: rgba(38, 36, 52, 0.42);
-    --glas-rand: rgba(255, 255, 255, 0.16);
-    --glas-aktiv: rgba(255, 255, 255, 0.14);
-  }
+:root[data-theme="dunkel"] {
+  --glas: rgba(38, 36, 52, 0.42);
+  --glas-rand: rgba(255, 255, 255, 0.16);
+  --glas-aktiv: rgba(255, 255, 255, 0.14);
 }
 
 .tabbar {

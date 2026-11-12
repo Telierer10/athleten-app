@@ -50,7 +50,6 @@ function termineAm(datumText) {
 
 function zeigePlan(inhalt) {
   const plan = ladePlan();
-  const name = Speicher.laden("name", "Tom");
 
   const artOptionen = Object.entries(ARTEN)
     .map(([schluessel, art]) => `<option value="${schluessel}">${art.icon} ${art.name}</option>`)
@@ -85,11 +84,6 @@ function zeigePlan(inhalt) {
       <p class="unterzeile">Dein fester Ablauf jede Woche.</p>
     </header>
 
-    <h3 class="gruppe">Dein Name</h3>
-    <div class="karte formular">
-      <input id="name-feld" value="${sicher(name)}" placeholder="Vorname" maxlength="30">
-    </div>
-
     <h3 class="gruppe">Termin hinzufügen</h3>
     <form class="karte formular" id="termin-form">
       <div class="zwei-spalten">
@@ -110,10 +104,6 @@ function zeigePlan(inhalt) {
   `;
 
   // --- Was passiert bei Klicks/Eingaben? ---
-
-  inhalt.querySelector("#name-feld").addEventListener("change", (e) => {
-    Speicher.speichern("name", e.target.value.trim() || "Tom");
-  });
 
   inhalt.querySelector("#termin-form").addEventListener("submit", (e) => {
     e.preventDefault(); // verhindert, dass die Seite neu lädt

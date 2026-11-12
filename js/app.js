@@ -12,12 +12,15 @@ const ANSICHTEN = {
   training: zeigeTraining,
   koerper: zeigeKoerper,
   plan: zeigePlan,
+  einstellungen: zeigeEinstellungen, // kein eigener Tab – erreichbar über ⚙️ auf "Heute"
 };
 
 let aktuelleAnsicht = "heute";
+let vorherigeAnsicht = "heute"; // wohin "‹ Zurück" in den Einstellungen führt
 
 // Zu einem Tab wechseln
 function zeigeAnsicht(name) {
+  if (name !== aktuelleAnsicht) vorherigeAnsicht = aktuelleAnsicht;
   aktuelleAnsicht = name;
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.classList.toggle("aktiv", tab.dataset.ansicht === name);
@@ -48,4 +51,5 @@ setInterval(() => {
 }, 60 * 1000);
 
 // Los geht's!
+wendeDesignAn();
 zeigeAnsicht("heute");

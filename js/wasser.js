@@ -91,6 +91,8 @@ function verbindeWasser(bereich) {
 
 // ---------- Vollbild: der ganze Bildschirm ist ein Glas ----------
 
+let wasserSim = null; // die laufende Wasser-Simulation (nur während das Vollbild offen ist)
+
 function oeffneWasserVollbild() {
   if (document.querySelector("#wasser-vollbild")) return;
 
@@ -109,7 +111,11 @@ function oeffneWasserVollbild() {
   vollbild.id = "wasser-vollbild";
   vollbild.className = "wasser-vollbild";
   vollbild.innerHTML = `
-    <div class="wv-wasser" style="height:0%">
+    <!-- Die Wasser-Simulation (siehe wassersimulation.js) malt hier hinein -->
+    <canvas class="wv-canvas" aria-hidden="true"></canvas>
+
+    <!-- Oberfläche (Wellen-Linie) + Luftblasen. Höhe setzt die Simulation in jedem Bild -->
+    <div class="wv-wasser" style="height:0">
       <svg class="wv-welle" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0,20 Q150,0 300,20 T600,20 T900,20 T1200,20 V40 H0 Z"></path>
       </svg>
@@ -118,9 +124,6 @@ function oeffneWasserVollbild() {
       </svg>
       <div class="wv-blasen">${blasen}</div>
     </div>
-
-    <!-- Hier entstehen die Kreis-Wellen, wenn man mit Finger oder Maus drüberstreicht -->
-    <div class="wv-kreiswellen"></div>
 
     <button class="wv-schliessen" aria-label="Schließen">✕</button>
 
@@ -173,36 +176,39 @@ function oeffneWasserVollbild() {
     eigeneForm.hidden = true;
   });
 
-  // --- Kreis-Wellen beim Drüberstreichen ---
-  // "pointer" = Maus, Finger UND Apple Pencil – alles mit einem Code
-  const wellenEbene = vollbild.querySelector(".wv-kreiswellen");
-  let letzteWelle = 0;
+  // --- Wasser-Simulation starten ---
+  const wasserSchicht = vollbild.querySelector(".wv-wasser");
+  wasserSim = starteWasserSimulation(vollbild.querySelector(".wv-canvas"));
+  // In jedem Bild: Wellen-Linie + Blasen auf die aktuelle Wasserhöhe setzen
+  wasserSim.beiPegel = (pegelPx) => {
+    wasserSchicht.style.height = `${Math.max(0, vollbild.clientHeight - pegelPx)}px`;
+  };
+
+  // --- Wellen mit der MAUS (am Computer) ---
   vollbild.addEventListener("pointermove", (e) => {
-    const jetzt = performance.now();
-    if (jetzt - letzteWelle < 80) return;   // höchstens alle 80 ms eine Welle, sonst wird's zu viel
-    letzteWelle = jetzt;
-    kreisWelle(wellenEbene, e.clientX, e.clientY, false);
+    if (e.pointerType === "mouse") wasserSim.streichen(e.clientX, e.clientY);
   });
   vollbild.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("button, input")) return;  // nicht beim Drücken von Knöpfen
-    kreisWelle(wellenEbene, e.clientX, e.clientY, true);
+    if (e.pointerType === "mouse" && !e.target.closest("button, input")) wasserSim.tippen(e.clientX, e.clientY);
   });
+
+  // --- Wellen mit dem FINGER (Handy/iPad) ---
+  // iPhones schicken Finger-Bewegungen als "touch"-Ereignisse. Mehrere Finger gehen auch!
+  vollbild.addEventListener("touchstart", (e) => {
+    if (e.target.closest("button, input")) return;   // Knöpfe sollen normal funktionieren
+    for (const finger of e.changedTouches) wasserSim.tippen(finger.clientX, finger.clientY);
+  }, { passive: true });
+  vollbild.addEventListener("touchmove", (e) => {
+    if (e.target.closest("button, input")) return;
+    e.preventDefault();                               // verhindert, dass die Seite dabei wackelt/scrollt
+    for (const finger of e.changedTouches) wasserSim.streichen(finger.clientX, finger.clientY);
+  }, { passive: false });
 
   vollbild.querySelector(".wv-schliessen").addEventListener("click", schliesseWasserVollbild);
   document.addEventListener("keydown", vollbildTaste);
 
   // Kurz warten, damit das Wasser sichtbar von 0 hochsteigt
   requestAnimationFrame(() => requestAnimationFrame(aktualisiereWasserVollbild));
-}
-
-// Eine Kreis-Welle an der Stelle x/y erzeugen. Sie wächst, verblasst und löscht sich dann selbst.
-function kreisWelle(ebene, x, y, gross) {
-  const welle = document.createElement("span");
-  welle.className = gross ? "kreiswelle gross" : "kreiswelle";
-  welle.style.left = `${x}px`;
-  welle.style.top = `${y}px`;
-  ebene.append(welle);
-  welle.addEventListener("animationend", () => welle.remove());
 }
 
 function vollbildTaste(e) {
@@ -213,6 +219,7 @@ function schliesseWasserVollbild() {
   const vollbild = document.querySelector("#wasser-vollbild");
   if (!vollbild) return;
   document.removeEventListener("keydown", vollbildTaste);
+  if (wasserSim) { wasserSim.stoppen(); wasserSim = null; }
   vollbild.classList.add("schliesst");
   // erst nach der Ausblend-Animation wirklich entfernen
   setTimeout(() => {
@@ -232,7 +239,7 @@ function aktualisiereWasserVollbild() {
   const gesamt = wasserGesamt();
 
   // Wasserstand: mindestens 6 %, damit man unten immer ein bisschen Wasser sieht
-  vollbild.querySelector(".wv-wasser").style.height = `${Math.max(6, prozent)}%`;
+  if (wasserSim) wasserSim.setzePegel(Math.max(6, prozent));
 
   const zahl = vollbild.querySelector("#wv-ml");
   const vorher = Number(zahl.dataset.wert || 0);
