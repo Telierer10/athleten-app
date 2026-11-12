@@ -11,6 +11,7 @@ const ARTEN = {
   physio:    { name: "Physio/Athletik", icon: "💪", farbe: "var(--gruen)" },
   spiel:     { name: "Spiel",           icon: "🏆", farbe: "var(--rot)" },
   Fahrrad:   { name: "Fahrrad",          icon: "🚴", farbe: "var(--lila)" },
+  Arzt:      { name: "Arzt",            icon: "🩺", farbe: "var(--weiss)" },
   sonstiges: { name: "Sonstiges",       icon: "📌", farbe: "var(--grau)" },
 };
 
