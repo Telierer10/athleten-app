@@ -4,9 +4,9 @@
 // =====================================================================
 
 // Vorschläge für das Fach-Feld. Fehlt eins? Einfach ergänzen!
-const FAECHER = ["Mathe", "Deutsch", "Englisch", "Französisch", "Latein", "Spanisch",
-  "Biologie", "Chemie", "Physik", "Geschichte", "Erdkunde", "Politik/SoWi",
-  "Informatik", "Kunst", "Musik", "Religion", "Sport"];
+const FAECHER = ["Mathe", "Deutsch", "Englisch", "Französisch", "Politik",
+  "Biologie", "Chemie", "Physik", "Geschichte", "Erdkunde", "SoWi",
+  "Kunst", "Musik", "Religion", "Sport"];
 
 function ladeAufgaben() {
   return Speicher.laden("aufgaben", []);
