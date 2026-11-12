@@ -10,6 +10,7 @@ const ARTEN = {
   training:  { name: "Training",        icon: "🤾", farbe: "var(--orange)" },
   physio:    { name: "Physio/Athletik", icon: "💪", farbe: "var(--gruen)" },
   spiel:     { name: "Spiel",           icon: "🏆", farbe: "var(--rot)" },
+  Fahrrad:   { name: "Fahrrad",          icon: "🚴", farbe: "var(--lila)" },
   sonstiges: { name: "Sonstiges",       icon: "📌", farbe: "var(--grau)" },
 };
 
