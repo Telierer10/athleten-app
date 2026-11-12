@@ -421,9 +421,198 @@ textarea:focus { outline: 2px solid var(--akzent); box-shadow: 0 0 16px var(--le
 .diagramm .punkt-gruppe:hover .datenpunkt { r: 6; }
 .diagramm .balken-gruppe:hover .balken { opacity: 0.75; }
 
-/* Platzhalter "Kommt bald" */
-.bald { text-align: center; padding: 48px 16px; color: var(--text-leise); }
-.bald-icon { font-size: 56px; margin-bottom: 8px; }
+/* ---------- Allgemeine kleine Helfer ---------- */
+.abstand-oben { margin-top: 12px; }
+.kacheln-2 { grid-template-columns: repeat(2, 1fr) !important; }
+
+/* App-Name oben auf "Heute" */
+.wortmarke {
+  margin: 8px 4px -12px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-leise);
+}
+.wortmarke span { font-weight: 800; }
+
+/* Ziel-Linie im Schlaf-Diagramm: gestrichelt */
+.diagramm .ziel-linie { stroke: var(--text-leise); stroke-width: 1.5; stroke-dasharray: 4 4; }
+
+/* 🔥-Serie bei Supplements */
+.serie { font-size: 13px; font-weight: 600; color: var(--orange); white-space: nowrap; }
+
+/* "Ziele anpassen" aufklappbar */
+.ziele summary { cursor: pointer; list-style: none; }
+.ziele summary::-webkit-details-marker { display: none; }
+.ziele summary::before { content: "›"; display: inline-block; transition: transform 0.2s; }
+.ziele[open] summary::before { transform: rotate(90deg); }
+
+/* ---------- Wasser-Karte (klein) ---------- */
+.wasser-karte {
+  position: relative;
+  overflow: hidden;            /* das "Wasser" darf nicht über den Rand laufen */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  background: linear-gradient(160deg, #1b1a6b, #2a1fd6);
+  border: none;
+  color: #fff;
+}
+.wasser-karte-fuellung {         /* hellblaues Wasser, das von unten steigt */
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(90, 140, 255, 0.55), rgba(60, 90, 255, 0.35));
+  border-top: 1.5px solid rgba(180, 200, 255, 0.6);   /* die "Wasseroberfläche" */
+  transition: height 0.8s ease;
+}
+.wasser-karte-inhalt { position: relative; flex: 1; }
+.wasser-karte-titel { font-size: 13px; font-weight: 600; opacity: 0.85; }
+.wasser-karte-zahl { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.wasser-karte-zahl span { font-size: 15px; font-weight: 500; opacity: 0.75; }
+.fortschritt { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.2); margin-top: 8px; overflow: hidden; }
+.fortschritt div { height: 100%; border-radius: 3px; background: #fff; transition: width 0.8s ease; }
+.wasser-knoepfe { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.wasser-knoepfe button {
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: background 0.2s;
+}
+.wasser-knoepfe button:hover { background: rgba(255, 255, 255, 0.3); }
+
+/* ---------- Wasser-Vollbild: der ganze Bildschirm ist ein Glas ---------- */
+.vollbild-offen { overflow: hidden; }     /* Seite dahinter nicht scrollen */
+
+.wasser-vollbild {
+  position: fixed;
+  inset: 0;                                /* = top/right/bottom/left: 0 → ganzer Bildschirm */
+  z-index: 100;
+  overflow: hidden;
+  color: #fff;
+  background: radial-gradient(ellipse at 50% 0%, #2b2a8f 0%, #12104a 60%, #090726 100%);
+  animation: einblenden 0.35s ease;
+}
+.wasser-vollbild.schliesst { animation: ausblenden 0.3s ease forwards; }
+@keyframes einblenden { from { opacity: 0; transform: scale(1.04); } }
+@keyframes ausblenden { to { opacity: 0; transform: scale(1.04); } }
+
+/* Das steigende Wasser */
+.wv-wasser {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, #4b55ff 0%, #2f22e0 40%, #1c13a8 100%);
+  transition: height 1.2s cubic-bezier(0.22, 1, 0.36, 1);   /* federt sanft aus */
+}
+/* Wellen oben auf dem Wasser: doppelt so breit und wandern nach links → endlose Bewegung */
+.wv-welle {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  width: 200%;
+  height: 30px;
+  animation: welle 6s linear infinite;
+}
+.wv-welle path { fill: #4b55ff; }
+.wv-welle-hinten { top: -34px; opacity: 0.4; animation-duration: 9s; animation-direction: reverse; }
+@keyframes welle { to { transform: translateX(-50%); } }
+
+/* Luftblasen steigen nach oben und verschwinden an der Oberfläche */
+.wv-blasen { position: absolute; inset: 0; overflow: hidden; }
+.blase {
+  position: absolute;
+  bottom: -20px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.35), transparent 60%);
+  animation: blase-steigt linear infinite;
+}
+@keyframes blase-steigt {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translate(12px, -50vh); }
+  90%  { opacity: 0.8; }
+  100% { transform: translate(-6px, -100vh); opacity: 0; }
+}
+
+.wv-schliessen {
+  position: absolute;
+  top: calc(16px + env(safe-area-inset-top));
+  right: 16px;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 20px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+}
+
+.wv-inhalt {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: calc(32px + env(safe-area-inset-bottom));
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.wv-zahl {
+  font-size: min(30vw, 190px);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  color: #8fa2ff;
+  text-shadow: 0 0 60px rgba(143, 162, 255, 0.35);   /* leichtes Leuchten */
+}
+.wv-zahl.lang { font-size: min(21vw, 160px); }       /* ab 1.000 ml etwas kleiner, damit es passt */
+.wv-wort {
+  font-family: "Caveat", cursive;                    /* Handschrift */
+  font-size: min(18vw, 96px);
+  line-height: 1;
+  color: #8fa2ff;
+  margin: 4px 0 24px;
+}
+.wv-fakt { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.wv-text { font-size: 15px; opacity: 0.8; line-height: 1.45; margin-bottom: 24px; }
+
+.wv-knoepfe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.wv-knoepfe button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font: inherit;
+  font-size: 26px;
+  color: #fff;
+  padding: 12px 4px 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.wv-knoepfe button span { font-size: 12px; font-weight: 600; opacity: 0.85; }
+.wv-knoepfe button:hover { background: rgba(255, 255, 255, 0.22); }
+.wv-knoepfe button:active { transform: scale(0.94); }      /* "drückt sich ein" beim Antippen */
+
+@media (prefers-reduced-motion: reduce) {
+  .wv-welle, .blase { animation: none; }
+  .blase { display: none; }
+}
 
 /* ---------- Tab-Leiste unten (Milchglas) ---------- */
 .tabbar {

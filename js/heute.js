@@ -61,6 +61,19 @@ function zeigeHeute(inhalt) {
       <span><strong>Wie lief's heute?</strong><br><span class="aufgabe-text">Trag dein Training ein →</span></span>
     </button>` : "";
 
+  // --- Erinnerung: morgens nach dem Schlaf fragen ---
+  const schlafErinnerung = stunde < 12 && !schlafAm(heute) ? `
+    <button class="karte erinnerung" data-gehe="koerper">
+      <span class="erinnerung-icon">😴</span>
+      <span><strong>Wie hast du geschlafen?</strong><br><span class="aufgabe-text">Trag deine Nacht ein →</span></span>
+    </button>` : "";
+
+  // --- Supplements, die heute noch fehlen ---
+  const offeneSupplements = offeneSupplementsHeute();
+  const supplementsHtml = offeneSupplements.length ? `
+    <h3 class="gruppe">Heute noch einnehmen</h3>
+    <ul class="karte liste">${offeneSupplements.map((s) => supplementHtml(s, false)).join("")}</ul>` : "";
+
   // --- Zeitleiste für heute ---
   const heuteListe = termine.length === 0
     ? `<p class="leer">Heute steht nichts im Plan. Genieß den freien Tag! 🌲</p>`
@@ -77,13 +90,19 @@ function zeigeHeute(inhalt) {
     : `<ul class="zeitleiste">${termineMorgen.map((t) => terminHtml(t, -1)).join("")}</ul>`;
 
   inhalt.innerHTML = `
+    <p class="wortmarke">self<span class="verlauf-text">ATHLETE</span></p>
     <header class="kopf">
       <p class="datum">${langesDatum(new Date())}</p>
       <h1>${gruss}, <span class="verlauf-text">${sicher(name)}.</span></h1>
     </header>
 
     ${naechsterHtml}
+    ${schlafErinnerung}
     ${erinnerungHtml}
+
+    <div class="abstand-oben">${wasserKarteHtml()}</div>
+
+    ${supplementsHtml}
 
     <h3 class="gruppe">Dein Tag</h3>
     <div class="karte">${heuteListe}</div>
@@ -99,6 +118,8 @@ function zeigeHeute(inhalt) {
   `;
 
   verbindeAufgabenKnoepfe(inhalt);
+  verbindeWasser(inhalt);
+  verbindeSupplements(inhalt);
   inhalt.querySelectorAll("[data-gehe]").forEach((knopf) => {
     knopf.addEventListener("click", () => zeigeAnsicht(knopf.dataset.gehe));
   });

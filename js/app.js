@@ -5,24 +5,12 @@
 
 const inhalt = document.querySelector("#inhalt");
 
-// Platzhalter für Ansichten, die noch gebaut werden
-function zeigeBald(titel, icon, wann) {
-  return (bereich) => {
-    bereich.innerHTML = `
-      <header class="kopf"><h1>${titel}</h1></header>
-      <div class="karte bald">
-        <p class="bald-icon">${icon}</p>
-        <p>Kommt ${wann}!</p>
-      </div>`;
-  };
-}
-
 // Welcher Tab zeigt welche Ansicht? Neue Ansicht = neue Zeile hier + Knopf in index.html
 const ANSICHTEN = {
   heute: zeigeHeute,
   aufgaben: zeigeAufgaben,
   training: zeigeTraining,
-  schlaf: zeigeBald("Schlaf", "😴", "am Donnerstag"),
+  koerper: zeigeKoerper,
   plan: zeigePlan,
 };
 
