@@ -119,6 +119,9 @@ function oeffneWasserVollbild() {
       <div class="wv-blasen">${blasen}</div>
     </div>
 
+    <!-- Hier entstehen die Kreis-Wellen, wenn man mit Finger oder Maus drüberstreicht -->
+    <div class="wv-kreiswellen"></div>
+
     <button class="wv-schliessen" aria-label="Schließen">✕</button>
 
     <div class="wv-inhalt">
@@ -130,8 +133,14 @@ function oeffneWasserVollbild() {
         <button data-wv-plus="250">🥛<span>Glas</span></button>
         <button data-wv-plus="500">🥤<span>Flasche</span></button>
         <button data-wv-plus="750">🫗<span>Groß</span></button>
+        <button data-wv-eigene>✏️<span>Eigene</span></button>
         <button data-wv-zurueck aria-label="Rückgängig">↶<span>Zurück</span></button>
       </div>
+      <!-- Eigene Menge: erscheint erst nach Tipp auf "Eigene" -->
+      <form class="wv-eigene" hidden>
+        <input type="number" name="ml" min="10" max="3000" step="10" placeholder="Menge in ml" required>
+        <button type="submit">Hinzufügen</button>
+      </form>
     </div>`;
 
   document.body.append(vollbild);
@@ -147,11 +156,53 @@ function oeffneWasserVollbild() {
     wasserRueckgaengig();
     aktualisiereWasserVollbild();
   });
+  // --- Eigene Menge ---
+  const eigeneForm = vollbild.querySelector(".wv-eigene");
+  vollbild.querySelector("[data-wv-eigene]").addEventListener("click", () => {
+    eigeneForm.hidden = !eigeneForm.hidden;               // ein-/ausblenden
+    if (!eigeneForm.hidden) eigeneForm.querySelector("input").focus();
+  });
+  eigeneForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const ml = Number(eigeneForm.querySelector("input").value);
+    if (ml > 0) {
+      wasserHinzufuegen(ml);
+      aktualisiereWasserVollbild();
+    }
+    eigeneForm.reset();
+    eigeneForm.hidden = true;
+  });
+
+  // --- Kreis-Wellen beim Drüberstreichen ---
+  // "pointer" = Maus, Finger UND Apple Pencil – alles mit einem Code
+  const wellenEbene = vollbild.querySelector(".wv-kreiswellen");
+  let letzteWelle = 0;
+  vollbild.addEventListener("pointermove", (e) => {
+    const jetzt = performance.now();
+    if (jetzt - letzteWelle < 80) return;   // höchstens alle 80 ms eine Welle, sonst wird's zu viel
+    letzteWelle = jetzt;
+    kreisWelle(wellenEbene, e.clientX, e.clientY, false);
+  });
+  vollbild.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button, input")) return;  // nicht beim Drücken von Knöpfen
+    kreisWelle(wellenEbene, e.clientX, e.clientY, true);
+  });
+
   vollbild.querySelector(".wv-schliessen").addEventListener("click", schliesseWasserVollbild);
   document.addEventListener("keydown", vollbildTaste);
 
   // Kurz warten, damit das Wasser sichtbar von 0 hochsteigt
   requestAnimationFrame(() => requestAnimationFrame(aktualisiereWasserVollbild));
+}
+
+// Eine Kreis-Welle an der Stelle x/y erzeugen. Sie wächst, verblasst und löscht sich dann selbst.
+function kreisWelle(ebene, x, y, gross) {
+  const welle = document.createElement("span");
+  welle.className = gross ? "kreiswelle gross" : "kreiswelle";
+  welle.style.left = `${x}px`;
+  welle.style.top = `${y}px`;
+  ebene.append(welle);
+  welle.addEventListener("animationend", () => welle.remove());
 }
 
 function vollbildTaste(e) {
