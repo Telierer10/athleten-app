@@ -24,8 +24,9 @@ function offeneAufgaben() {
 }
 
 // Wie viele Aufgaben sind heute/morgen fällig oder schon überfällig? (für das rote Badge)
+// Dazu kommen To-dos von heute (aus erinnerungen.js).
 function dringendeAnzahl() {
-  return offeneAufgaben().filter((a) => tageBis(a.faellig) <= 1).length;
+  return offeneAufgaben().filter((a) => tageBis(a.faellig) <= 1).length + todosHeute().length;
 }
 
 // HTML für EINE Aufgabe. Wird auch von der Heute-Ansicht benutzt.
@@ -80,6 +81,9 @@ function aufgabenGruppe(titel, liste) {
 // ---------- Die Ansicht "Aufgaben" ----------
 
 function zeigeAufgaben(inhalt) {
+  // To-dos und Geburtstage kommen aus erinnerungen.js
+  if (aufgabenBereich !== "schule") return zeigeErinnerungen(inhalt);
+
   const offen = offeneAufgaben();
   const erledigt = ladeAufgaben()
     .filter((a) => a.erledigt)
@@ -107,6 +111,7 @@ function zeigeAufgaben(inhalt) {
       <h1>Aufgaben</h1>
       <p class="unterzeile">${offen.length === 0 ? "Alles erledigt. Stark! 💪" : `${offen.length} offen`}</p>
     </header>
+    ${bereichSchalterHtml()}
 
     <form class="karte formular" id="aufgabe-form">
       <input id="a-fach" list="faecher" placeholder="Fach" required maxlength="30">
@@ -170,4 +175,5 @@ function zeigeAufgaben(inhalt) {
   }
 
   verbindeAufgabenKnoepfe(inhalt);
+  verbindeBereichSchalter(inhalt);
 }

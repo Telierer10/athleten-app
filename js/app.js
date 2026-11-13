@@ -53,3 +53,14 @@ setInterval(() => {
 // Los geht's!
 wendeDesignAn();
 zeigeAnsicht("heute");
+
+// Service Worker starten (macht die App offline-fähig, siehe sw.js).
+// Klappt nur über https:// (GitHub Pages), nicht beim Öffnen als Datei – das ist okay.
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("sw.js");
+}
+
+// Den Browser bitten, unsere Daten NICHT automatisch zu löschen, wenn der Speicher knapp wird
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist();
+}

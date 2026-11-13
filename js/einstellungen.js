@@ -50,6 +50,15 @@ function exportiereDaten() {
   link.download = `selfATHLETE-backup-${heuteText()}.json`;
   link.click();                                   // Download starten
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  Speicher.speichern("letzteSicherung", heuteText()); // für die Erinnerung auf "Heute"
+}
+
+// Braucht es eine neue Sicherung? Ja, wenn es Daten gibt und die letzte über 7 Tage her ist.
+function sicherungFaellig() {
+  const wichtig = Object.keys(alleDaten()).filter((k) => !["design", "name", "letzteSicherung"].includes(k));
+  if (wichtig.length === 0) return false;       // noch nichts eingetragen → nichts zu sichern
+  const letzte = Speicher.laden("letzteSicherung", null);
+  return !letzte || tageBis(letzte) <= -7;
 }
 
 // Import: Datei einlesen und ALLE Daten damit ersetzen

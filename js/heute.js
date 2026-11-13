@@ -68,6 +68,23 @@ function zeigeHeute(inhalt) {
       <span><strong>Wie hast du geschlafen?</strong><br><span class="aufgabe-text">Trag deine Nacht ein →</span></span>
     </button>` : "";
 
+  // --- Erinnerung: Daten sichern (wenn die letzte Sicherung über 7 Tage her ist) ---
+  const sicherungHtml = sicherungFaellig() ? `
+    <button class="karte erinnerung" data-gehe="einstellungen">
+      <span class="erinnerung-icon">💾</span>
+      <span><strong>Zeit für eine Sicherung</strong><br><span class="aufgabe-text">Exportiere deine Daten in „Dateien“ →</span></span>
+    </button>` : "";
+
+  // --- To-dos für heute + Geburtstage in den nächsten 7 Tagen (aus erinnerungen.js) ---
+  const todos = todosHeute();
+  const todosHtml = todos.length ? `
+    <h3 class="gruppe">To-dos heute <span class="anzahl">${todos.length}</span></h3>
+    <ul class="karte liste">${todos.map(todoHtml).join("")}</ul>` : "";
+  const bald = geburtstageSortiert().filter((g) => g.tage <= 7);
+  const geburtstageHtml = bald.length ? `
+    <h3 class="gruppe">Geburtstage</h3>
+    <ul class="karte liste">${bald.map(geburtstagHtml).join("")}</ul>` : "";
+
   // --- Supplements, die heute noch fehlen ---
   const offeneSupplements = offeneSupplementsHeute();
   const supplementsHtml = offeneSupplements.length ? `
@@ -102,6 +119,10 @@ function zeigeHeute(inhalt) {
     ${naechsterHtml}
     ${schlafErinnerung}
     ${erinnerungHtml}
+    ${sicherungHtml}
+
+    ${todosHtml}
+    ${geburtstageHtml}
 
     <div class="abstand-oben">${wasserKarteHtml()}</div>
 
@@ -121,6 +142,7 @@ function zeigeHeute(inhalt) {
   `;
 
   verbindeAufgabenKnoepfe(inhalt);
+  verbindeErinnerungsKnoepfe(inhalt);
   verbindeWasser(inhalt);
   verbindeSupplements(inhalt);
   inhalt.querySelectorAll("[data-gehe]").forEach((knopf) => {
